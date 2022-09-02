@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Foreign Aid Kit</title>
+    <script defer src='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'></script>
+    <script defer src="https://code.highcharts.com/highcharts.js"></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<script defer src="bundleb70a9144a2a50dafffd8.js"></script></head>
+<body>
+    <div id="map"></div>
+    <div class="home-info-icons">
+        <i id="icon-home" class="fas fa-home icon" title="Go Home"></i>
+        <i id="icon-info" class="fas fa-info icon" title="Get info"></i>
+    </div>
+    <div class="center">
+        <div class="what-and-how-to">
+            <h1 class="what-headline">Foreign/Aid/Kit<span>&reg;</span></h1>
+            <p class="paragraph-welcome">Welcome to Foreign Aid Kit. This kit is made with the purpose of making foreign aid transactions and foreign aid spending more transparent.</p>
+            
+            <div class="what-and-how-to-grid">
+                <div class="img-text-container">
+                    <img src="./images/timeseries-graph.jpg">
+                    <p class="what-and-how-to-explanation">You will see a time-series graph showing foreign aid from Norway to the chosen continent over time.</p>
+                </div>
+                <div class="img-text-container">
+                    <img src="./images/total-aid.jpg">
+                    <p class="what-and-how-to-explanation">Click on a country, and the aid amount that is transferred to it from Norway between 1962 and 2018 will appear.</p>
+                </div>
+                <div class="img-text-container">
+                    <img src="./images/graph-unallocated.jpg">
+                    <p class="what-and-how-to-explanation">A graph visualizing the aid amount that is unallocated in a chosen country is represented.</p>
+                </div>
+            </div>
+
+            <div class="choose-continent">
+                <p class="choose-continent-headline">Choose continent</p>
+                <p class="choose-continent-africa">Africa</p>
+            </div>
+        </div>
+    </div>
+    <div id="info-section-container">
+        <h1 class="info-section-title">Africa</h1>
+        <div class="info-section">
+            <div class="info-section-aid">
+                <p class="total-aid-received"><span class="total-aid">Aid Received</span> from 1962 to 2018:</p>
+                <p class="total-aid-amount">142,624 MNOK</p>
+            </div>
+            <div class="relative-section">
+                <p class="aid-percentages"></p>
+                <p class="aid-explanation"></p>
+            </div>
+            <div class="aid-status"></div>
+        </div>
+        
+        <div id="aid-graph-timeseries" style="height: 180px; padding-right: 25px"></div>
+        <div id="aid-graph-unspecified" style="height: 180px; padding-right: 25px"></div>
+    </div>
+</body>
+</html>

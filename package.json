@@ -1,0 +1,38 @@
+{
+  "name": "foreign-aid-kit",
+  "version": "1.0.0",
+  "description": "* The Foreign Aid Kit project is made with the goal of making foreign aid transfers more transparent. * In this early prototype the user can navigate in a Mapbox map. By clicking on each African country, foreign aid information will appear in a Highcharts graph section.",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "dev": "webpack serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertegelund/foreign-aid-kit-master.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robertegelund/foreign-aid-kit-master/issues"
+  },
+  "homepage": "https://github.com/robertegelund/foreign-aid-kit-master#readme",
+  "devDependencies": {
+    "@babel/core": "^7.18.13",
+    "@babel/preset-env": "^7.18.10",
+    "babel-loader": "^8.2.5",
+    "css-loader": "^6.7.1",
+    "html-webpack-plugin": "^5.5.0",
+    "sass": "^1.54.8",
+    "sass-loader": "^13.0.2",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.74.0",
+    "webpack-bundle-analyzer": "^4.6.1",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.10.1"
+  },
+  "dependencies": {
+    "firebase": "^9.9.4"
+  }
+}
