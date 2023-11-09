@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app"
-import firebase from "../login.js";
+import firebase from "../api_info.js";
 
 const firebaseConfig = {
   apiKey: firebase["API_KEY"],

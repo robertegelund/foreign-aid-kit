@@ -1,3 +1,4 @@
+import mapbox from "../api_info.json"
 const infoSectionTitle = document.querySelector(".info-section-title");
 const totalAidAmount = document.querySelector(".total-aid-amount");
 const aidPercentages = document.querySelector(".aid-percentages");
@@ -9,10 +10,10 @@ const aidStatus = document.querySelector(".aid-status");
 let aktiv = "Namibia";
 let first = true;
 
-mapboxgl.accessToken = 'pk.eyJ1Ijoicm9iZXJ0ZWdlbHVuZCIsImEiOiJjazUzbHVlaHkwYTFoM2xwbmltNzgyazA0In0.Xc5srVX7uKCSLlVU1RdtCg';
+mapboxgl.accessToken = mapbox["API_KEY"];
 export const kart = new mapboxgl.Map({
     container: "map",
-    style: "mapbox://styles/robertegelund/ck66n56dx00r31in057j6r7qt"
+    style: mapbox["STYLE"]
 });
 
 kart.on("load", () => {
