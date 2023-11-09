@@ -33,6 +33,7 @@
     "webpack-dev-server": "^4.10.1"
   },
   "dependencies": {
-    "firebase": "^9.9.4"
+    "firebase": "^9.9.4",
+    "git-crypt": "^0.0.1"
   }
 }
