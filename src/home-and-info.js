@@ -39,7 +39,8 @@ iconInfo.onclick = () => {
         infoSectionContainer.style.display = "flex";
         iconInfo.style.color = "white";
         iconInfo.style.animationPlayState = "paused";
-    } else {whatAndHowTo.style.display = "flex";
+    } else {
+        whatAndHowTo.style.display = "flex";
         infoSectionContainer.style.display = "none";
         iconInfo.style.color = "gold";
         iconInfo.style.animation = "pulsate 1.5s infinite"
