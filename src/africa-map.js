@@ -115,7 +115,7 @@ const updateCountryInfo = async (country) => {
     } else {
         totalAidAmount.innerHTML = `${Math.round(countryInfo.total).toLocaleString("en-US")} million USD`;
         aidPercentages.innerHTML = formatPercentage(countryInfo.total, totals.africa);
-        aidExplanation.innerHTML = "of Africa's total aid from Norway";
+        aidExplanation.innerHTML = `of Norway's total aid to Africa went to ${name}`;
         aidStatus.style.display = "none";
         showAidTimeSeries(countryInfo.series, `Aid from Norway to ${name} (million USD)`);
     }
