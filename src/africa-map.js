@@ -1,26 +1,28 @@
-import mapbox from "../api_info.json"
-const infoSectionTitle = document.querySelector(".info-section-title");
-const totalAidAmount = document.querySelector(".total-aid-amount");
-const aidPercentages = document.querySelector(".aid-percentages");
-const aidExplanation = document.querySelector(".aid-explanation");
-const aidGraphTimeseries = document.querySelector("#aid-graph-timeseries");
-const aidGraphUnspecified = document.querySelector("#aid-graph-unspecified");
-const aidStatus = document.querySelector(".aid-status");
+import { MAPBOX_API_KEY } from "./config.js";
+import {
+    infoSectionTitle,
+    totalAidAmount,
+    aidPercentages,
+    aidExplanation,
+    aidGraphTimeseries,
+    aidGraphUnspecified,
+    aidStatus
+} from "./dom.js";
+import { aktiv, setAktiv, firstFly, setFirstFly } from "./state.js";
+import { formatAidAmount, formatPercentage } from "./format.js";
+import { TOTAL_AID_AFRICA_MNOK, TOTAL_AID_WORLD_MNOK, MAPBOX_STYLE } from "./constants.js";
 
-let aktiv = "Namibia";
-let first = true;
-
-mapboxgl.accessToken = mapbox["API_KEY"];
+mapboxgl.accessToken = MAPBOX_API_KEY;
 export const kart = new mapboxgl.Map({
     container: "map",
-    style: mapbox["STYLE"]
+    style: MAPBOX_STYLE
 });
 
 kart.on("load", () => {
-    collectAndUseData();
+    loadCountries();
 });
 
-const options = {
+const chart = new Highcharts.Chart({
     chart: {
         renderTo: "aid-graph-unspecified",
         type: "bar",
@@ -34,36 +36,38 @@ const options = {
         data: []
     }],
     legend: {
-        enabled: false 
+        enabled: false
     },
     yAxis: {
         min: 0,
         max: 85,
         title: "",
-        labels: {
-            style: {color: "white"}
-        }
+        labels: { style: { color: "white" } }
     },
     xAxis: {
         categories: ["Unallocated"],
-        labels: {
-            style: {color: "white"}
-        }
+        labels: { style: { color: "white" } }
     }
-}
-const chart = new Highcharts.Chart(options);
+});
 
+export const showWorldAidOverview = () => {
+    aidPercentages.innerHTML = formatPercentage(TOTAL_AID_AFRICA_MNOK, TOTAL_AID_WORLD_MNOK);
+    aidExplanation.innerHTML = "of the world's total aid from Norway";
+};
 
-aidPercentages.innerHTML = (142624 * 100 / 600813.8).toFixed(2) + " %";
-aidExplanation.innerHTML = "of the world's total aid from Norway"
+showWorldAidOverview();
 
-const collectAndUseData = async () => {
+const loadCountries = async () => {
     const response = await fetch("./data/africa.geojson");
     const json = await response.json();
-    const aidData = await json.features.map( country => {
-   
+    json.features.forEach(addCountry);
+};
+
+const addCountry = (country) => {
+    const name = country.properties.name;
+
     kart.addLayer({
-        id: country.properties.name,
+        id: name,
         type: "fill",
         paint: {
             "fill-color": "transparent"
@@ -74,72 +78,65 @@ const collectAndUseData = async () => {
         }
     });
 
-    kart.on("mouseover", country.properties.name, () => {
-        if(country.properties.name != aktiv) 
-            kart.setPaintProperty(country.properties.name, "fill-color", "rgba(0,0,0,0.3)");
+    kart.on("mouseover", name, () => highlightCountry(name, "rgba(0,0,0,0.3)"));
+    kart.on("mouseleave", name, () => highlightCountry(name, "transparent"));
+    kart.on("click", name, (e) => selectCountry(country, e));
+};
+
+const highlightCountry = (name, color) => {
+    if (name !== aktiv) {
+        kart.setPaintProperty(name, "fill-color", color);
+    }
+};
+
+const selectCountry = (country, e) => {
+    const name = country.properties.name;
+
+    kart.setPaintProperty(aktiv, "fill-color", "transparent");
+    setAktiv(name);
+    kart.setPaintProperty(name, "fill-color", "rgba(230,0,0,0.3)");
+    kart.setZoom(4);
+
+    if (firstFly) {
+        kart.flyTo({ center: [e.lngLat.lng, e.lngLat.lat] });
+        setFirstFly(false);
+    } else {
+        kart.easeTo({ center: [e.lngLat.lng, e.lngLat.lat] });
+    }
+
+    updateCountryInfo(country);
+};
+
+const updateCountryInfo = (country) => {
+    infoSectionTitle.innerHTML = country.properties.name;
+    totalAidAmount.innerHTML = formatAidAmount(country.properties.aid);
+    aidPercentages.innerHTML = formatPercentage(country.properties.aid, TOTAL_AID_AFRICA_MNOK);
+    aidExplanation.innerHTML = "of Africa's total aid from Norway";
+    aidGraphTimeseries.style.display = "none";
+    aidGraphUnspecified.style.display = "block";
+
+    chart.series[0].update({
+        data: [{
+            name: "Unallocated",
+            y: country.properties.unspecified
+        }]
     });
 
-    kart.on("mouseleave", country.properties.name, () => {
-        if(country.properties.name != aktiv)
-            kart.setPaintProperty(country.properties.name, "fill-color", "transparent")
-    });
+    updateAidStatus(country);
+};
 
-    kart.on("click", country.properties.name, (e) => {
-        kart.setPaintProperty(aktiv, "fill-color", "transparent");    
-        aktiv = country.properties.name;
-        kart.setPaintProperty(aktiv, "fill-color", "rgba(230,0,0,0.3)");
-        
-        infoSectionTitle.innerHTML = country.properties.name;
-        
-        const aidString = String(country.properties.aid);
-        const aidStringArray = [];
-        kart.setZoom(4);
+const updateAidStatus = (country) => {
+    if (country.properties.unspecified === 0) {
+        aidStatus.style.display = "block";
+        aidStatus.innerHTML = `All of ${country.properties.name}'s aid from Norway are allocated`;
+    } else if (country.properties.unspecified === "NaN") {
+        aidStatus.style.display = "block";
+        aidStatus.innerHTML = `Whether any of ${country.properties.name}'s aid from Norway is unallocated is unsure`;
+    } else {
+        aidStatus.style.display = "none";
+    }
 
-        if (aidString.length === 6) {
-                for (let i=1; i <= aidString.length; i++) { 
-                    aidStringArray.push(aidString[i]);
-                    totalAidAmount.innerHTML = aidString[0] + "," + aidStringArray.join("") + " MNOK";
-        }} else if (aidString.length === 7) {
-                for (let i=2; i <= aidString.length; i++) {
-                    aidStringArray.push(aidString[i]);
-                    totalAidAmount.innerHTML = aidString[0] + aidString[1] + "," + aidStringArray.join("") + " MNOK";
-            }} else {
-                    totalAidAmount.innerHTML = aidString + " MNOK";
-            };
-
-        aidPercentages.innerHTML = (country.properties.aid * 100 / 142624).toFixed(2) + " %";
-        aidExplanation.innerHTML = "of Africa's total aid from Norway";
-        aidGraphTimeseries.style.display = "none";
-        aidGraphUnspecified.style.display = "block";
-        
-        if(first) {
-            kart.flyTo({
-                center: [e.lngLat.lng, e.lngLat.lat]
-            });
-            first = false;
-        } else {
-            kart.easeTo({
-                center: [e.lngLat.lng, e.lngLat.lat]
-            });
-        };
-
-        chart.series[0].update({
-            data:   [{
-                        name: "Unallocated",
-                        y: country.properties.unspecified
-                    }]
-            }) 
-
-        if(country.properties.unspecified === 0) {
-            aidStatus.style.display = "block";
-            aidStatus.innerHTML = `All of ${country.properties.name}'s aid from Norway are allocated`;
-        } else if (country.properties.unspecified === "NaN") {
-            aidStatus.style.display = "block";
-            aidStatus.innerHTML = `Whether any of ${country.properties.name}'s aid from Norway is unallocated is unsure`;
-        } else {aidStatus.style.display = "none"}
-
-        if (country.properties.aid === "NaN") {
-            aidStatus.innerHTML = `${country.properties.name} has not received any aid from Norway`;
-        } 
-    });
-})};
+    if (country.properties.aid === "NaN") {
+        aidStatus.innerHTML = `${country.properties.name} has not received any aid from Norway`;
+    }
+};
