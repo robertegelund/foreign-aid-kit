@@ -46,11 +46,11 @@ iconInfo.onclick = () => {
         iconInfo.style.animationPlayState = "paused";
     } else {
         whatAndHowTo.style.display = "flex";
+        chooseContinent.style.display = "block";
         infoSectionContainer.style.display = "none";
         iconInfo.style.color = "gold";
         iconInfo.style.animation = "pulsate 1.5s infinite";
     }
-    chooseContinent.style.display = "none";
     setInfoOpen(!infoOpen);
 };
 
