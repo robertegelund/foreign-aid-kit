@@ -1,4 +1,5 @@
 export const infoSectionTitle = document.querySelector(".info-section-title");
+export const totalAidReceived = document.querySelector(".total-aid-received");
 export const totalAidAmount = document.querySelector(".total-aid-amount");
 export const aidPercentages = document.querySelector(".aid-percentages");
 export const aidExplanation = document.querySelector(".aid-explanation");

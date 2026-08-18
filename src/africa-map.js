@@ -1,6 +1,7 @@
 import { MAPBOX_API_KEY } from "./config.js";
 import {
     infoSectionTitle,
+    totalAidReceived,
     totalAidAmount,
     aidPercentages,
     aidExplanation,
@@ -10,7 +11,8 @@ import {
 } from "./dom.js";
 import { aktiv, setAktiv, firstFly, setFirstFly } from "./state.js";
 import { formatAidAmount, formatPercentage } from "./format.js";
-import { TOTAL_AID_AFRICA_MNOK, TOTAL_AID_WORLD_MNOK, MAPBOX_STYLE } from "./constants.js";
+import { MAPBOX_STYLE, STATIC_TOTAL_AID_AFRICA_MNOK } from "./constants.js";
+import { loadAidTotals } from "./aid-totals.js";
 
 mapboxgl.accessToken = MAPBOX_API_KEY;
 export const kart = new mapboxgl.Map({
@@ -50,8 +52,18 @@ const chart = new Highcharts.Chart({
     }
 });
 
-export const showWorldAidOverview = () => {
-    aidPercentages.innerHTML = formatPercentage(TOTAL_AID_AFRICA_MNOK, TOTAL_AID_WORLD_MNOK);
+export const showWorldAidOverview = async () => {
+    let totals;
+    try {
+        totals = await loadAidTotals();
+    } catch (error) {
+        console.error("Failed to load aid totals from the OECD API:", error);
+        return;
+    }
+
+    totalAidReceived.innerHTML = `<span class="total-aid">Aid Received</span> from ${totals.firstYear} to ${totals.lastYear}:`;
+    totalAidAmount.innerHTML = `${Math.round(totals.africa).toLocaleString("en-US")} million USD`;
+    aidPercentages.innerHTML = formatPercentage(totals.africa, totals.world);
     aidExplanation.innerHTML = "of the world's total aid from Norway";
 };
 
@@ -110,7 +122,7 @@ const selectCountry = (country, e) => {
 const updateCountryInfo = (country) => {
     infoSectionTitle.innerHTML = country.properties.name;
     totalAidAmount.innerHTML = formatAidAmount(country.properties.aid);
-    aidPercentages.innerHTML = formatPercentage(country.properties.aid, TOTAL_AID_AFRICA_MNOK);
+    aidPercentages.innerHTML = formatPercentage(country.properties.aid, STATIC_TOTAL_AID_AFRICA_MNOK);
     aidExplanation.innerHTML = "of Africa's total aid from Norway";
     aidGraphTimeseries.style.display = "none";
     aidGraphUnspecified.style.display = "block";
