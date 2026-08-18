@@ -5,13 +5,14 @@ const sum = (series) => series.reduce((total, point) => total + point.y, 0);
 let totalsPromise = null;
 
 // Sums Norway's full ODA disbursement history to Africa and to all
-// developing countries ("the world"), in million USD. Memoized so every
-// caller shares the same underlying fetch.
+// recipients worldwide ("ALLR" - Norway's true grand total, not just the
+// narrower "developing countries" subset), in million USD. Memoized so
+// every caller shares the same underlying fetch.
 export const loadAidTotals = () => {
     if (!totalsPromise) {
         totalsPromise = loadAllAidData().then((allAidData) => {
             const africaSeries = allAidData["F"];
-            const worldSeries = allAidData["DPGC"];
+            const worldSeries = allAidData["ALLR"];
             return {
                 africa: sum(africaSeries),
                 world: sum(worldSeries),

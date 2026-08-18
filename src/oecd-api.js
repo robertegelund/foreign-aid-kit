@@ -1,8 +1,10 @@
 // OECD SDMX API (DAC2A: Aid (ODA) disbursements to countries and regions).
 // No API key required; CORS is supported (the API reflects back the request's
 // Origin). DONOR=NOR (Norway). RECIPIENT is a joined list of every code this
-// app needs (individual African countries, "F" = Africa region, "DPGC" = all
-// developing countries), fetched in one request. MEASURE=206 (ODA
+// app needs (individual African countries, "F" = Africa region, "ALLR" = all
+// recipients - Norway's true grand total; "DPGC", "developing countries", is
+// a narrower subset and was confirmed by direct testing to undercount
+// Norway's actual total ODA), fetched in one request. MEASURE=206 (ODA
 // disbursements), UNIT_MEASURE=USD, PRICE_BASE=V (current prices).
 //
 // CSV format is used deliberately instead of the JSON API: when RECIPIENT
@@ -13,7 +15,7 @@
 // ambiguity since every observation is its own row.
 import { COUNTRY_OECD_CODES } from "./country-codes.js";
 
-const RECIPIENT_CODES = ["F", "DPGC", ...new Set(Object.values(COUNTRY_OECD_CODES))];
+const RECIPIENT_CODES = ["F", "ALLR", ...new Set(Object.values(COUNTRY_OECD_CODES))];
 
 const OECD_URL =
     `https://sdmx.oecd.org/public/rest/data/OECD.DCD.FSD,DSD_DAC2@DF_DAC2A,1.6/NOR.${RECIPIENT_CODES.join("+")}.206.USD.V?format=csvfile`;
