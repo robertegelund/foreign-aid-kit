@@ -101,7 +101,7 @@ img {
     display: grid;
     justify-content: center;
     width: 80%;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 5em;
     padding: 3em;
 }
@@ -191,10 +191,6 @@ img {
     font-size: 0.8rem;
     margin-top: 0.5em;
     margin-bottom: 0;
-}
-
-#aid-graph-unspecified {
-    display: none;
 }
 
 .aid-status {

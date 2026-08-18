@@ -7,13 +7,9 @@ import {
     chooseContinentAfrica,
     infoSectionContainer,
     infoSectionTitle,
-    totalAidAmount,
-    aidGraphTimeseries,
-    aidGraphUnspecified,
     aidStatus
 } from "./dom.js";
 import { aktiv, infoOpen, setInfoOpen } from "./state.js";
-import { TOTAL_AID_AFRICA_MNOK } from "./constants.js";
 
 iconHome.onclick = () => {
     kart.flyTo({
@@ -23,15 +19,12 @@ iconHome.onclick = () => {
     kart.setPaintProperty(aktiv, "fill-color", "transparent");
 
     infoSectionTitle.innerHTML = "Africa";
-    totalAidAmount.innerHTML = `${TOTAL_AID_AFRICA_MNOK.toLocaleString("en-US")} MNOK`;
     showWorldAidOverview();
 
     infoSectionContainer.style.display = "none";
     whatAndHowTo.style.display = "flex";
     chooseContinent.style.display = "block";
     aidStatus.style.display = "none";
-    aidGraphTimeseries.style.display = "block";
-    aidGraphUnspecified.style.display = "none";
 
     iconInfo.style.color = "gold";
     iconInfo.style.animation = "pulsate 1.5s infinite";

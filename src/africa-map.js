@@ -1,16 +1,17 @@
 import { MAPBOX_API_KEY } from "./config.js";
 import {
     infoSectionTitle,
+    totalAidReceived,
     totalAidAmount,
     aidPercentages,
     aidExplanation,
-    aidGraphTimeseries,
-    aidGraphUnspecified,
     aidStatus
 } from "./dom.js";
 import { aktiv, setAktiv, firstFly, setFirstFly } from "./state.js";
-import { formatAidAmount, formatPercentage } from "./format.js";
-import { TOTAL_AID_AFRICA_MNOK, TOTAL_AID_WORLD_MNOK, MAPBOX_STYLE } from "./constants.js";
+import { formatPercentage } from "./format.js";
+import { MAPBOX_STYLE } from "./constants.js";
+import { loadAidTotals } from "./aid-totals.js";
+import { loadCountryAidTotals } from "./country-aid.js";
 
 mapboxgl.accessToken = MAPBOX_API_KEY;
 export const kart = new mapboxgl.Map({
@@ -22,37 +23,20 @@ kart.on("load", () => {
     loadCountries();
 });
 
-const chart = new Highcharts.Chart({
-    chart: {
-        renderTo: "aid-graph-unspecified",
-        type: "bar",
-        backgroundColor: "transparent",
-    },
-    title: false,
-    series: [{
-        name: "Unallocated aid from Norway (MNOK)",
-        color: "gold",
-        borderColor: "transparent",
-        data: []
-    }],
-    legend: {
-        enabled: false
-    },
-    yAxis: {
-        min: 0,
-        max: 85,
-        title: "",
-        labels: { style: { color: "white" } }
-    },
-    xAxis: {
-        categories: ["Unallocated"],
-        labels: { style: { color: "white" } }
+export const showWorldAidOverview = async () => {
+    let totals;
+    try {
+        totals = await loadAidTotals();
+    } catch (error) {
+        console.error("Failed to load aid totals from the OECD API:", error);
+        return;
     }
-});
 
-export const showWorldAidOverview = () => {
-    aidPercentages.innerHTML = formatPercentage(TOTAL_AID_AFRICA_MNOK, TOTAL_AID_WORLD_MNOK);
+    totalAidReceived.innerHTML = `<span class="total-aid">Aid Received</span> from ${totals.firstYear} to ${totals.lastYear}:`;
+    totalAidAmount.innerHTML = `${Math.round(totals.africa).toLocaleString("en-US")} million USD`;
+    aidPercentages.innerHTML = formatPercentage(totals.africa, totals.world);
     aidExplanation.innerHTML = "of the world's total aid from Norway";
+    aidStatus.style.display = "none";
 };
 
 showWorldAidOverview();
@@ -107,36 +91,29 @@ const selectCountry = (country, e) => {
     updateCountryInfo(country);
 };
 
-const updateCountryInfo = (country) => {
-    infoSectionTitle.innerHTML = country.properties.name;
-    totalAidAmount.innerHTML = formatAidAmount(country.properties.aid);
-    aidPercentages.innerHTML = formatPercentage(country.properties.aid, TOTAL_AID_AFRICA_MNOK);
-    aidExplanation.innerHTML = "of Africa's total aid from Norway";
-    aidGraphTimeseries.style.display = "none";
-    aidGraphUnspecified.style.display = "block";
+const updateCountryInfo = async (country) => {
+    const name = country.properties.name;
+    infoSectionTitle.innerHTML = name;
 
-    chart.series[0].update({
-        data: [{
-            name: "Unallocated",
-            y: country.properties.unspecified
-        }]
-    });
-
-    updateAidStatus(country);
-};
-
-const updateAidStatus = (country) => {
-    if (country.properties.unspecified === 0) {
-        aidStatus.style.display = "block";
-        aidStatus.innerHTML = `All of ${country.properties.name}'s aid from Norway are allocated`;
-    } else if (country.properties.unspecified === "NaN") {
-        aidStatus.style.display = "block";
-        aidStatus.innerHTML = `Whether any of ${country.properties.name}'s aid from Norway is unallocated is unsure`;
-    } else {
-        aidStatus.style.display = "none";
+    let totals, countryTotals;
+    try {
+        [totals, countryTotals] = await Promise.all([loadAidTotals(), loadCountryAidTotals()]);
+    } catch (error) {
+        console.error("Failed to load aid data from the OECD API:", error);
+        return;
     }
 
-    if (country.properties.aid === "NaN") {
-        aidStatus.innerHTML = `${country.properties.name} has not received any aid from Norway`;
+    const countryTotal = countryTotals[name];
+    if (countryTotal === null || countryTotal === undefined) {
+        totalAidAmount.innerHTML = "No data available";
+        aidPercentages.innerHTML = "";
+        aidExplanation.innerHTML = "";
+        aidStatus.style.display = "block";
+        aidStatus.innerHTML = `No OECD-reported aid data is available for ${name}`;
+    } else {
+        totalAidAmount.innerHTML = `${Math.round(countryTotal).toLocaleString("en-US")} million USD`;
+        aidPercentages.innerHTML = formatPercentage(countryTotal, totals.africa);
+        aidExplanation.innerHTML = "of Africa's total aid from Norway";
+        aidStatus.style.display = "none";
     }
 };
