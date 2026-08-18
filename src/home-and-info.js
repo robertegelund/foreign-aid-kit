@@ -57,7 +57,7 @@ iconInfo.onclick = () => {
 chooseContinentAfrica.onclick = () => {
     kart.flyTo({
         center: [41.657048, -6.813934],
-        zoom: 3.50,
+        zoom: 2.50,
         pitch: 40,
         minPitch: 40,
         maxPitch: 40
