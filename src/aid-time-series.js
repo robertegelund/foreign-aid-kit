@@ -1,19 +1,23 @@
 import { loadAllAidData } from "./oecd-api.js";
 
-const showAidTimeSeries = async () => {
-    let aidAndYear;
-    try {
-        const allAidData = await loadAllAidData();
-        aidAndYear = allAidData["F"];
-    } catch (error) {
-        console.error("Failed to load aid time series from the OECD API:", error);
+let chart = null;
+
+// Creates the time-series chart on first call, and swaps its data in place
+// on later calls (used when switching between the Africa-wide view and a
+// selected country's own history).
+export const showAidTimeSeries = (series, seriesName) => {
+    const years = series.map(point => point.name);
+    const maxValue = Math.max(...series.map(point => point.y));
+    const yAxisMax = Math.ceil(maxValue * 1.1 / 100) * 100;
+
+    if (chart) {
+        chart.xAxis[0].setCategories(years);
+        chart.yAxis[0].update({ max: yAxisMax });
+        chart.series[0].update({ name: seriesName, data: series });
         return;
     }
 
-    const years = aidAndYear.map(aidYear => aidYear.name);
-    const maxValue = Math.max(...aidAndYear.map(aidYear => aidYear.y));
-
-    const options = {
+    chart = new Highcharts.Chart({
         chart: {
             renderTo: "aid-graph-timeseries",
             type: "line",
@@ -22,8 +26,8 @@ const showAidTimeSeries = async () => {
         title: false,
         series: [
             {
-                name: "Aid from Norway to Africa (million USD)",
-                data: aidAndYear,
+                name: seriesName,
+                data: series,
                 color: "gold"
             }
         ],
@@ -37,7 +41,7 @@ const showAidTimeSeries = async () => {
         },
         yAxis: {
             min: 0,
-            max: Math.ceil(maxValue * 1.1 / 100) * 100,
+            max: yAxisMax,
             title: "",
             labels: {
                 style: {
@@ -48,8 +52,16 @@ const showAidTimeSeries = async () => {
         legend: {
             enabled: false
         }
-    };
-    new Highcharts.Chart(options);
+    });
 };
 
-showAidTimeSeries();
+const initAidTimeSeries = async () => {
+    try {
+        const allAidData = await loadAllAidData();
+        showAidTimeSeries(allAidData["F"], "Aid from Norway to Africa (million USD)");
+    } catch (error) {
+        console.error("Failed to load aid time series from the OECD API:", error);
+    }
+};
+
+initAidTimeSeries();

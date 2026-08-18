@@ -11,7 +11,8 @@ import { aktiv, setAktiv, firstFly, setFirstFly } from "./state.js";
 import { formatPercentage } from "./format.js";
 import { MAPBOX_STYLE } from "./constants.js";
 import { loadAidTotals } from "./aid-totals.js";
-import { loadCountryAidTotals } from "./country-aid.js";
+import { loadCountryAidData } from "./country-aid.js";
+import { showAidTimeSeries } from "./aid-time-series.js";
 
 mapboxgl.accessToken = MAPBOX_API_KEY;
 export const kart = new mapboxgl.Map({
@@ -37,6 +38,7 @@ export const showWorldAidOverview = async () => {
     aidPercentages.innerHTML = formatPercentage(totals.africa, totals.world);
     aidExplanation.innerHTML = "of the world's total aid from Norway";
     aidStatus.style.display = "none";
+    showAidTimeSeries(totals.series, "Aid from Norway to Africa (million USD)");
 };
 
 showWorldAidOverview();
@@ -95,25 +97,26 @@ const updateCountryInfo = async (country) => {
     const name = country.properties.name;
     infoSectionTitle.innerHTML = name;
 
-    let totals, countryTotals;
+    let totals, countryData;
     try {
-        [totals, countryTotals] = await Promise.all([loadAidTotals(), loadCountryAidTotals()]);
+        [totals, countryData] = await Promise.all([loadAidTotals(), loadCountryAidData()]);
     } catch (error) {
         console.error("Failed to load aid data from the OECD API:", error);
         return;
     }
 
-    const countryTotal = countryTotals[name];
-    if (countryTotal === null || countryTotal === undefined) {
+    const countryInfo = countryData[name];
+    if (!countryInfo || countryInfo.total === null) {
         totalAidAmount.innerHTML = "No data available";
         aidPercentages.innerHTML = "";
         aidExplanation.innerHTML = "";
         aidStatus.style.display = "block";
         aidStatus.innerHTML = `No OECD-reported aid data is available for ${name}`;
     } else {
-        totalAidAmount.innerHTML = `${Math.round(countryTotal).toLocaleString("en-US")} million USD`;
-        aidPercentages.innerHTML = formatPercentage(countryTotal, totals.africa);
+        totalAidAmount.innerHTML = `${Math.round(countryInfo.total).toLocaleString("en-US")} million USD`;
+        aidPercentages.innerHTML = formatPercentage(countryInfo.total, totals.africa);
         aidExplanation.innerHTML = "of Africa's total aid from Norway";
         aidStatus.style.display = "none";
+        showAidTimeSeries(countryInfo.series, `Aid from Norway to ${name} (million USD)`);
     }
 };

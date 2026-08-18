@@ -16,7 +16,8 @@ export const loadAidTotals = () => {
                 africa: sum(africaSeries),
                 world: sum(worldSeries),
                 firstYear: africaSeries[0].name,
-                lastYear: africaSeries[africaSeries.length - 1].name
+                lastYear: africaSeries[africaSeries.length - 1].name,
+                series: africaSeries
             };
         });
     }
