@@ -149,6 +149,7 @@ img {
 .info-section {
     display: flex;
     justify-content: space-between;
+    gap: 2em;
     padding: 0.5em 4em;
 }
 
@@ -183,6 +184,7 @@ img {
     flex-direction: column;
     flex: 1;
     min-width: 0;
+    padding-top: 33.5px;
 }
 
 .aid-percentages {
