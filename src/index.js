@@ -1,5 +1,4 @@
-require("./africa-map.js");
-require("./aid-time-series.js");
-require("./firebase.js");
-require("./home-and-info.js");
+import "./africa-map.js";
+import "./aid-time-series.js";
+import "./home-and-info.js";
 import "./styles/main.scss"

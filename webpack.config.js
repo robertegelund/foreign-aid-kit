@@ -1,6 +1,7 @@
 const path = require("path")
+const webpack = require("webpack")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
-// const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
+require("dotenv").config()
 
 module.exports = {
     mode: "development",
@@ -14,9 +15,11 @@ module.exports = {
         assetModuleFilename: "[name][ext]",
     },
     devServer: {
-        static: {
-            directory: path.resolve(__dirname, "dist")
-        },
+        static: [
+            { directory: path.resolve(__dirname, "dist") },
+            { directory: path.resolve(__dirname, "data"), publicPath: "/data" },
+            { directory: path.resolve(__dirname, "images"), publicPath: "/images" },
+        ],
         port: 3000,
         open: true,
         hot: true,
@@ -52,6 +55,8 @@ module.exports = {
             filename: "index.html",
             template: "src/template.html"
         }),
-        // new BundleAnalyzerPlugin(),
+        new webpack.DefinePlugin({
+            "process.env.MAPBOX_API_KEY": JSON.stringify(process.env.MAPBOX_API_KEY),
+        }),
     ]
 }
