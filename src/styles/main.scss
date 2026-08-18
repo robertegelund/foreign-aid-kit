@@ -180,6 +180,7 @@ img {
 .relative-section {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .aid-percentages {
