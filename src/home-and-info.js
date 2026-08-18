@@ -7,8 +7,6 @@ import {
     chooseContinentAfrica,
     infoSectionContainer,
     infoSectionTitle,
-    aidGraphTimeseries,
-    aidGraphUnspecified,
     aidStatus
 } from "./dom.js";
 import { aktiv, infoOpen, setInfoOpen } from "./state.js";
@@ -27,8 +25,6 @@ iconHome.onclick = () => {
     whatAndHowTo.style.display = "flex";
     chooseContinent.style.display = "block";
     aidStatus.style.display = "none";
-    aidGraphTimeseries.style.display = "block";
-    aidGraphUnspecified.style.display = "none";
 
     iconInfo.style.color = "gold";
     iconInfo.style.animation = "pulsate 1.5s infinite";

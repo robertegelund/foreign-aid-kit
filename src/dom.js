@@ -3,8 +3,6 @@ export const totalAidReceived = document.querySelector(".total-aid-received");
 export const totalAidAmount = document.querySelector(".total-aid-amount");
 export const aidPercentages = document.querySelector(".aid-percentages");
 export const aidExplanation = document.querySelector(".aid-explanation");
-export const aidGraphTimeseries = document.querySelector("#aid-graph-timeseries");
-export const aidGraphUnspecified = document.querySelector("#aid-graph-unspecified");
 export const aidStatus = document.querySelector(".aid-status");
 
 export const iconHome = document.querySelector("#icon-home");

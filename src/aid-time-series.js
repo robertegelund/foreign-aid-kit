@@ -1,9 +1,10 @@
-import { fetchAidTimeSeries } from "./oecd-api.js";
+import { loadAllAidData } from "./oecd-api.js";
 
 const showAidTimeSeries = async () => {
     let aidAndYear;
     try {
-        aidAndYear = await fetchAidTimeSeries();
+        const allAidData = await loadAllAidData();
+        aidAndYear = allAidData["F"];
     } catch (error) {
         console.error("Failed to load aid time series from the OECD API:", error);
         return;
