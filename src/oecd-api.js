@@ -1,11 +1,7 @@
 // OECD SDMX API (DAC2A: Aid (ODA) disbursements to countries and regions).
 // No API key required; CORS is supported (the API reflects back the request's
-// Origin). DONOR=NOR (Norway). RECIPIENT is a joined list of every code this
-// app needs (individual African countries, "F" = Africa region, "ALLR" = all
-// recipients - Norway's true grand total; "DPGC", "developing countries", is
-// a narrower subset and was confirmed by direct testing to undercount
-// Norway's actual total ODA), fetched in one request. MEASURE=206 (ODA
-// disbursements), UNIT_MEASURE=USD, PRICE_BASE=V (current prices).
+// Origin). MEASURE=206 (ODA disbursements), UNIT_MEASURE=USD, PRICE_BASE=V
+// (current prices).
 //
 // CSV format is used deliberately instead of the JSON API: when RECIPIENT
 // has multiple values, the OECD's JSON response contains duplicate object
@@ -15,10 +11,14 @@
 // ambiguity since every observation is its own row.
 import { COUNTRY_OECD_CODES } from "./country-codes.js";
 
-const RECIPIENT_CODES = ["F", "ALLR", ...new Set(Object.values(COUNTRY_OECD_CODES))];
+const dacUrl = (donor, recipients) =>
+    `https://sdmx.oecd.org/public/rest/data/OECD.DCD.FSD,DSD_DAC2@DF_DAC2A,1.6/${donor}.${recipients}.206.USD.V?format=csvfile`;
 
-const OECD_URL =
-    `https://sdmx.oecd.org/public/rest/data/OECD.DCD.FSD,DSD_DAC2@DF_DAC2A,1.6/NOR.${RECIPIENT_CODES.join("+")}.206.USD.V?format=csvfile`;
+// DONOR=NOR (Norway). RECIPIENT is a joined list of every recipient this app
+// needs Norway's own figures for (individual African countries plus "F" =
+// Africa region), fetched in one request.
+const RECIPIENT_CODES = ["F", ...new Set(Object.values(COUNTRY_OECD_CODES))];
+const OECD_URL = dacUrl("NOR", RECIPIENT_CODES.join("+"));
 
 let loadPromise = null;
 
@@ -35,6 +35,26 @@ export const loadAllAidData = () => {
         });
     }
     return loadPromise;
+};
+
+// DONOR=DAC ("DAC countries" - the standard aggregate for all major donor
+// countries combined, i.e. Norway's peers). Used to show how much of
+// Africa's total received aid comes from Norway specifically, rather than
+// how much of Norway's own aid goes to Africa.
+const DAC_TO_AFRICA_URL = dacUrl("DAC", "F");
+
+let dacToAfricaPromise = null;
+
+export const loadDacToAfricaSeries = () => {
+    if (!dacToAfricaPromise) {
+        dacToAfricaPromise = fetch(DAC_TO_AFRICA_URL).then(async (response) => {
+            if (!response.ok) {
+                throw new Error(`OECD API request failed with status ${response.status}`);
+            }
+            return parseAidCsv(await response.text())["F"];
+        });
+    }
+    return dacToAfricaPromise;
 };
 
 const parseAidCsv = (csvText) => {

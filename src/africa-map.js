@@ -35,8 +35,8 @@ export const showWorldAidOverview = async () => {
 
     totalAidReceived.innerHTML = `<span class="total-aid">Aid Received</span> from ${totals.firstYear} to ${totals.lastYear}:`;
     totalAidAmount.innerHTML = `${Math.round(totals.africa).toLocaleString("en-US")} million USD`;
-    aidPercentages.innerHTML = formatPercentage(totals.africa, totals.world);
-    aidExplanation.innerHTML = "of the world's total aid from Norway";
+    aidPercentages.innerHTML = formatPercentage(totals.africa, totals.worldAidToAfrica);
+    aidExplanation.innerHTML = "of the world's total aid to Africa is from Norway";
     aidStatus.style.display = "none";
     showAidTimeSeries(totals.series, "Aid from Norway to Africa (million USD)");
 };
